@@ -11,7 +11,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jp.banjer.playlists.components.appnav.AppNav;
 import jp.banjer.playlists.components.appnav.AppNavItem;
-import jp.banjer.playlists.views.helloworld.HelloWorldView;
+import jp.banjer.playlists.security.SecurityUtils;
+import jp.banjer.playlists.views.about.AboutView;
+import jp.banjer.playlists.views.home.HomeView;
+import jp.banjer.playlists.views.search.SearchView;
+import jp.banjer.playlists.views.searchresult.SearchResultView;
+
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
@@ -19,6 +24,8 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 public class MainLayout extends AppLayout {
 
+	private static final long serialVersionUID = 1L;
+	
     private H2 viewTitle;
 
     public MainLayout() {
@@ -54,8 +61,14 @@ public class MainLayout extends AppLayout {
         // SideNav component.
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Hello World", HelloWorldView.class, LineAwesomeIcon.SKIING_SOLID.create()));
-
+        nav.addItem(new AppNavItem("About", AboutView.class, LineAwesomeIcon.INFO_CIRCLE_SOLID.create()));
+        nav.addItem(new AppNavItem("Home", HomeView.class, LineAwesomeIcon.HOME_SOLID.create()));
+        AppNavItem search = new AppNavItem("Search", SearchView.class, LineAwesomeIcon.SEARCH_SOLID.create());
+        
+    	AppNavItem searchResultItem = new AppNavItem("SearchResult", SearchResultView.class, LineAwesomeIcon.SPOTIFY.create());
+    	searchResultItem.setVisible(SecurityUtils.getUser() != null);
+        nav.addItem(searchResultItem);
+        
         return nav;
     }
 

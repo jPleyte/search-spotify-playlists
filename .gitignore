@@ -28,5 +28,4 @@ replay_pid*
 .settings
 frontend/generated
 node_modules
-package-lock.json
 target
