@@ -52,6 +52,12 @@ public class SpotifyConsumer {
 	@Value("${ryanslist.callback.uri}")
 	private String callbackUri;
 
+	@Value("${application.title}")
+	public String applicationTitle;
+	
+	@Value("${application.version:0.0}")
+	public String applicationVersion;
+
 	/**
 	 * Configure and return the api
 	 * 
@@ -270,5 +276,17 @@ public class SpotifyConsumer {
 		}
 		
 		return results;
+	}
+	
+	/**
+	 * Return the application version pulled from application.properties which is pulled form pom.xml. This function strips the '-SNAPSHOT' suffix from the version.
+	 * @return
+	 */
+	public String getApplicationVersion() {
+		return applicationVersion.replace("-SNAPSHOT", "");
+	}
+	
+	public String getApplicationName() {
+		return applicationTitle;
 	}
 }

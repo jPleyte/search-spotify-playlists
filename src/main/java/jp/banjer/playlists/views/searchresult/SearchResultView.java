@@ -23,6 +23,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.server.VaadinSession;
 
 import jakarta.annotation.security.PermitAll;
 import jp.banjer.playlists.consumer.SpotifyConsumer;
@@ -34,9 +35,9 @@ import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
 @PageTitle("Search Result")
-@Route(value = "searchResult/artist/:artist?/song/:song?", layout = MainLayout.class)
+@Route(value = "searchResult", layout = MainLayout.class)
 @PermitAll
-public class SearchResultView extends VerticalLayout implements BeforeEnterObserver /*, HasUrlParameter<String>*/ {
+public class SearchResultView extends VerticalLayout implements BeforeEnterObserver {
 
 	private Logger logger = LoggerFactory.getLogger(SearchResultView.class);
 	
@@ -44,6 +45,7 @@ public class SearchResultView extends VerticalLayout implements BeforeEnterObser
 	
 	public static final String PARAMETER_ARTIST = "artist";
 	public static final String PARAMETER_SONG = "song";
+	public static final String ATTRIBUTE_SEARCH_PARAMETERS = "SEARCH_PARAMETERS";
 	
 	private static final int MESSAGE_DURATION = 15000; // leave those messages up for 15s
 	private static final Position MESSAGE_POSITION = Position.BOTTOM_START;
@@ -75,9 +77,13 @@ public class SearchResultView extends VerticalLayout implements BeforeEnterObser
     public void beforeEnter(BeforeEnterEvent event) {
     	SecurityUtils.requireTokenAuthentication();
     	
-    	RouteParameters parameters = event.getRouteParameters();
-    	artist = parameters.get(PARAMETER_ARTIST).orElse("");
-    	song = parameters.get(PARAMETER_SONG).orElse("");
+//    	RouteParameters parameters = event.getRouteParameters();
+    	Object p = VaadinSession.getCurrent().getSession().getAttribute(ATTRIBUTE_SEARCH_PARAMETERS);
+    	if(p != null) {
+    		RouteParameters parameters = (RouteParameters) p;        	
+        	artist = parameters.get(PARAMETER_ARTIST).orElse("");
+        	song = parameters.get(PARAMETER_SONG).orElse("");    		
+    	}
     	
     	if(!StringUtils.isBlank(artist) || !StringUtils.isBlank(song)) {
     		searchText.setText("Searching for artist="+artist+", song="+song);

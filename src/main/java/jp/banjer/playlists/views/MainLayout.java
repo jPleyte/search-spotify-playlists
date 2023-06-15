@@ -1,5 +1,8 @@
 package jp.banjer.playlists.views;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.lineawesome.LineAwesomeIcon;
+
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -8,16 +11,17 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
 import jp.banjer.playlists.components.appnav.AppNav;
 import jp.banjer.playlists.components.appnav.AppNavItem;
+import jp.banjer.playlists.consumer.SpotifyConsumer;
 import jp.banjer.playlists.security.SecurityUtils;
 import jp.banjer.playlists.views.about.AboutView;
 import jp.banjer.playlists.views.home.HomeView;
 import jp.banjer.playlists.views.search.SearchView;
 import jp.banjer.playlists.views.searchresult.SearchResultView;
-
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -25,10 +29,14 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 public class MainLayout extends AppLayout {
 
 	private static final long serialVersionUID = 1L;
+
+	@Autowired 
+	SpotifyConsumer spotifyConsumer;
 	
     private H2 viewTitle;
 
-    public MainLayout() {
+    public MainLayout(@Autowired SpotifyConsumer spotifyConsumer) {
+    	this.spotifyConsumer = spotifyConsumer;
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
@@ -45,7 +53,7 @@ public class MainLayout extends AppLayout {
     }
 
     private void addDrawerContent() {
-        H1 appName = new H1("Search Playlists");
+        H1 appName = new H1(spotifyConsumer.getApplicationName() + " v"+spotifyConsumer.getApplicationVersion());
         appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
         Header header = new Header(appName);
 
@@ -63,10 +71,14 @@ public class MainLayout extends AppLayout {
 
         nav.addItem(new AppNavItem("About", AboutView.class, LineAwesomeIcon.INFO_CIRCLE_SOLID.create()));
         nav.addItem(new AppNavItem("Home", HomeView.class, LineAwesomeIcon.HOME_SOLID.create()));
+
         AppNavItem search = new AppNavItem("Search", SearchView.class, LineAwesomeIcon.SEARCH_SOLID.create());
+        search.setVisible(SecurityUtils.getUser() != null);
+        nav.addItem(search);
         
     	AppNavItem searchResultItem = new AppNavItem("SearchResult", SearchResultView.class, LineAwesomeIcon.SPOTIFY.create());
-    	searchResultItem.setVisible(SecurityUtils.getUser() != null);
+    	boolean isSearchParametersInSession = VaadinSession.getCurrent().getSession().getAttribute(SearchResultView.ATTRIBUTE_SEARCH_PARAMETERS) != null;    	
+    	searchResultItem.setVisible(SecurityUtils.getUser() != null && isSearchParametersInSession);
         nav.addItem(searchResultItem);
         
         return nav;

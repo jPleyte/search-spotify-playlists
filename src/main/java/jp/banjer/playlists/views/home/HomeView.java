@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.VaadinSession;
 
 import jakarta.annotation.security.PermitAll;
 import jp.banjer.playlists.consumer.SpotifyConsumer;
@@ -79,9 +80,9 @@ public class HomeView extends HorizontalLayout {
 		disconnectButton.addClickShortcut(Key.ENTER);
 
 		disconnectButton.addClickListener(x -> getUI().ifPresent(ui -> {
-			UI.getCurrent().getSession().close();
-			
-			UI.getCurrent().getPage().setLocation("login");
+			UI.getCurrent().getSession().close();		
+			VaadinSession.getCurrent().getSession().invalidate();
+			UI.getCurrent().getPage().setLocation("home");
 		}));
 		
 		return disconnectButton;
